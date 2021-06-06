@@ -21,5 +21,21 @@ Redis是一种NoSQL，什么是NoSQL呢？
 
 
 
+## 3.	Redis数据结构
 
+Redis支持5中基本类型，以及三种特殊类型。接下来我们会详细介绍Redis中的数据类型以及常用API
+
+常用数据类型
+
+1. String
+2. List
+3. hash
+4. set
+5. Zset
+
+特殊数据类型
+
+1. geospatial
+2. HyperLogLog
+3. BitMap
 

@@ -33,7 +33,7 @@
 
 #### Redis基础
 
-##### 1.	[Redis基础01--准备](Article/01Redis基础1.md)
+##### 1.	[01. Redis基础](Article/01Redis基础1.md)
 
 #### Redis整合Java
 
