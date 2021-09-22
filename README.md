@@ -33,7 +33,7 @@
 
 #### Redis基础
 
-##### 1.	[01. Redis基础](Article/01Redis基础1.md)
+##### 1.	[Redis基础](Article/01Redis基础1.md)
 
 #### Redis整合Java
 
@@ -42,3 +42,12 @@
 ##### 2. 	RedisTemplate
 
 #### 扩展
+
+
+
+## Java系列
+
+##### 1.	Java代理:CGLIB代理
+
+
+
