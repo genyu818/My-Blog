@@ -417,8 +417,268 @@ protected Object resolveName(String name, MethodParameter parameter, NativeWebRe
 
 #### 2.2	自定义参数绑定原理
 
-- **ServletModelAttributeMethodProcessor**
-- **是否为简单类型。**
-- **WebDataBinder binder = binderFactory.createBinder(webRequest, attribute, name);**
-- bindRequestParam
-- **GenericConversionService：在设置每一个值的时候，找它里面的所有converter那个可以将这个数据类型（request带来参数的字符串）转换到指定的类型（JavaBean -- Integer）**
+上面已经分析了两种简单注解的参数获取原理，但是实际在开发过程中最经常使用的还是定义一个实体类，并且使用实体类来接受请求的JSON参数，那就需要使用到@RequestBody这个注解，先简单来看一段代码
+
+```java
+//	定义一个实体类来接受请求参数
+@Data
+public class Person {
+    private String name;
+
+    private int age;
+
+}
+
+//	原地返回请求参数
+@PostMapping("/person")
+public Person testPerson(@RequestBody Person person){
+    return person;
+}
+```
+
+发出Post请求
+
+```http
+###
+
+POST http://localhost:8080/person
+Content-Type: application/json
+{
+  "name": "wang",
+  "age": 100
+}
+
+```
+
+请求结果如下
+
+```http
+{
+    "name": "wang",
+    "age": 13
+}
+```
+
+那就来看一下SpringMVC是如何处理用户自定义的实体类来接收参数，上节我们说过SpringMVC是通过getMethodArgumentValues()去获取参数，那就回到这个方法继续去看
+
+```java
+protected Object[] getMethodArgumentValues(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer, Object... 			providedArgs) throws Exception {
+	···
+    // 判断是否resolvers是否支持当前参数
+    if (!this.resolvers.supportsParameter(parameter)) {
+                        throw new IllegalStateException(formatArgumentError(parameter, "No suitable resolver"));
+    }
+	
+    try {
+        args[i] = this.resolvers.resolveArgument(parameter, mavContainer, request, this.dataBinderFactory);
+               ···
+        }
+}    
+public boolean supportsParameter(MethodParameter parameter) {
+	// 判断是否有@RequestParam
+    if (parameter.hasParameterAnnotation(RequestParam.class)) {
+            if (!Map.class.isAssignableFrom(parameter.nestedIfOptional().getNestedParameterType())) {
+                return true;
+            } else {
+                RequestParam requestParam = (RequestParam)parameter.getParameterAnnotation(RequestParam.class);
+                return requestParam != null && StringUtils.hasText(requestParam.name());
+            }
+        } 
+    // 判断是否有@RequestPartm
+    else if (parameter.hasParameterAnnotation(RequestPart.class)) {
+            return false;
+        } 
+    else {    
+        parameter = parameter.nestedIfOptional();
+        // 判断是否有上传
+            
+        if (MultipartResolutionDelegate.isMultipartArgument(parameter)) {
+         
+            return true;      
+        } else {
+            //	判断当前类是否是isSimpleProperty  
+            return this.useDefaultResolution ? BeanUtils.isSimpleProperty(parameter.getNestedParameterType()) : false;
+        }    
+    }    
+}
+
+
+```
+
+
+
+根据上一节所讲进入到getArgumentResolver()看是哪一种HandlerResolver来处理当前参数。把断电打在``return result;``上，发现``resolver``会去处理当前参数。
+
+```java
+private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parameter) {
+    HandlerMethodArgumentResolver result = (HandlerMethodArgumentResolver)this.argumentResolverCache.get(parameter);
+    if (result == null) {
+        Iterator var3 = this.argumentResolvers.iterator();
+        while(var3.hasNext()) {
+            
+            HandlerMethodArgumentResolver resolver = (HandlerMethodArgumentResolver)var3.next();
+            //	判断是否支持当前参数处理器
+            if (resolver.supportsParameter(parameter)) {
+                result = resolver;
+            
+                this.argumentResolverCache.put(parameter, resolver);
+                break;
+            }
+        }
+    }
+	
+    return result;
+}
+
+// 	RequestResponseBodyMethodProcessor
+//	判断是否有RequestBody注解
+public boolean supportsParameter(MethodParameter parameter) {
+    return parameter.hasParameterAnnotation(RequestBody.class);
+}
+
+//	处理参数
+@Nullable
+public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer, NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
+    //	拿到参数解析器
+    HandlerMethodArgumentResolver resolver = this.getArgumentResolver(parameter);
+    if (resolver == null) {
+        throw new IllegalArgumentException("Unsupported parameter type [" + parameter.getParameterType().getName() + "]. supportsParameter should be called first.");
+    } else {
+        //	处理参数
+        return resolver.resolveArgument(parameter, mavContainer, webRequest, binderFactory);
+    }
+}
+
+public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer, NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
+    //	获取参数
+    parameter = parameter.nestedIfOptional();
+    //	参数消息转换器，即从HTTP POST请求中获取参数{"name": "wang","age":13}
+    // 	A base class for resolving method argument values by reading from the body of a request with HttpMessageConverters.
+    Object arg = this.readWithMessageConverters(webRequest, parameter, parameter.getNestedGenericParameterType());
+    //	获取参数命名 Person
+    String name = Conventions.getVariableNameForParameter(parameter);
+    if (binderFactory != null) {
+        //	核心关键：绑定Servelet和请求的实体对象
+        WebDataBinder binder = binderFactory.createBinder(webRequest, arg, name);
+        if (arg != null) {
+            this.validateIfApplicable(binder, parameter);
+            if (binder.getBindingResult().hasErrors() && this.isBindExceptionRequired(binder, parameter)) {
+                throw new MethodArgumentNotValidException(parameter, binder.getBindingResult());
+            }
+        }
+
+        if (mavContainer != null) {
+            mavContainer.addAttribute(BindingResult.MODEL_KEY_PREFIX + name, binder.getBindingResult());
+        }
+    }
+
+    return this.adaptArgumentIfNecessary(arg, parameter);
+}
+
+protected <T> Object readWithMessageConverters(NativeWebRequest webRequest, MethodParameter parameter, Type paramType) throws IOException, HttpMediaTypeNotSupportedException, HttpMessageNotReadableException {
+    // get HTTP Servlet Requests
+    HttpServletRequest servletRequest = (HttpServletRequest)webRequest.getNativeRequest(HttpServletRequest.class);
+    Assert.state(servletRequest != null, "No HttpServletRequest");
+    //	将servletRequest封装成ServletServerHttpRequest
+    ServletServerHttpRequest inputMessage = new ServletServerHttpRequest(servletRequest);
+    Object arg = this.readWithMessageConverters(inputMessage, parameter, paramType);
+    if (arg == null && this.checkRequired(parameter)) {
+        throw new HttpMessageNotReadableException("Required request body is missing: " + parameter.getExecutable().toGenericString(), inputMessage);
+    } else {
+        return arg;
+    }
+}
+
+
+//	将POST请求的JSON对象转会Java中的实体对象
+@Nullable
+protected <T> Object readWithMessageConverters(HttpInputMessage inputMessage, MethodParameter parameter, Type targetType) throws IOException, HttpMediaTypeNotSupportedException, HttpMessageNotReadableException {
+		
+    ...
+	//	获取Controller类
+    Class<?> contextClass = parameter.getContainingClass();
+    //	获取Java中的实体类
+    Class<T> targetClass = targetType instanceof Class ? (Class)targetType : null;
+    ...
+	//	获取请求方法
+    HttpMethod httpMethod = inputMessage instanceof HttpRequest ? ((HttpRequest)inputMessage).getMethod() : null;
+    Object body = NO_VALUE;
+    
+    AbstractMessageConverterMethodArgumentResolver.EmptyBodyCheckingHttpInputMessage message;
+        try {
+            label98: {
+               	//	获取请求信息的字节流
+                message = new AbstractMessageConverterMethodArgumentResolver.EmptyBodyCheckingHttpInputMessage(inputMessage);
+                //	遍历messageConverters
+                Iterator var11 = this.messageConverters.iterator();
+
+                HttpMessageConverter converter;
+                Class converterType;
+                GenericHttpMessageConverter genericConverter;
+                while(true) {
+                    if (!var11.hasNext()) {
+                        break label98;
+                    }
+
+                    
+                    converter = (HttpMessageConverter)var11.next();
+                    converterType = converter.getClass();
+                    //	找到可以解析当前请求信息的messageConverters， 此刻是MappingJackonMeessageConverter
+                    genericConverter = converter instanceof GenericHttpMessageConverter ? (GenericHttpMessageConverter)converter : null;
+				···
+                if (message.hasBody()) {
+                    HttpInputMessage msgToUse = this.getAdvice().beforeBodyRead(message, parameter, targetType, converterType);
+                    //	根据Jackson去解析请求的JSON Data字节流
+                    body = genericConverter != null ? genericConverter.read(targetType, contextClass, msgToUse) : converter.read(targetClass, msgToUse);
+                 	//	Allows customizing the request before its body is read and converted into an Object and also allows for 				//	processing of the resulting Object before it is passed into a controller method as an @RequestBody or an 					//	HttpEntity method argument.
+				//	Implementations of this contract may be registered directly with the RequestMappingHandlerAdapter or more 					//	likely annotated with @ControllerAdvice in which case they are auto-detected.
+                    body = this.getAdvice().afterBodyRead(body, msgToUse, parameter, targetType, converterType);
+                } else {
+                    body = this.getAdvice().handleEmptyBody((Object)null, message, parameter, targetType, converterType);
+                }
+            }
+        } catch (IOException var17) {
+            throw new HttpMessageNotReadableException("I/O error while reading input message", var17, inputMessage);
+        }
+
+    if (body != NO_VALUE) {
+        LogFormatUtils.traceDebug(this.logger, (traceOn) -> {
+            String formatted = LogFormatUtils.formatValue(body, !traceOn);
+            return "Read \"" + contentType + "\" to [" + formatted + "]";
+        });
+        return body;
+    } else if (httpMethod == null || !SUPPORTED_METHODS.contains(httpMethod) || noContentType && !message.hasBody()) {
+        return null;
+    } else {
+        throw new HttpMediaTypeNotSupportedException(contentType, this.getSupportedMediaTypes(targetClass != null ? targetClass : Object.class));
+    }
+}
+```
+
+
+
+![image-20210922205715525](D:\Blog\My-Blog\pic\image-20210922205715525.png)
+
+
+
+
+
+
+
+核心就是 GenericHttpMessageConverter
+
+
+
+
+
+
+
+### 3.	总结
+
+1. @PathVariable,@RequestParam
+   1. 通过 getMethodArgumentValues()针对不同的注解使用不同的resolver
+      * @PathVariable从URL直接获取参数
+      * @RequestParam从request.getParameterValues(name)获取参数
+2. @RequestBody
+   1. 通过从HTTP请求中获取请求Body的字节流
+   2. 然后使用不同的GenericHttpMessageConverter去获取参数

@@ -145,7 +145,8 @@ RequestMappingHandlerMapping : 里边就保存了我们所有经过@RequestMappi
     protected HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
         if (this.handlerMappings != null) {
             Iterator var2 = this.handlerMappings.iterator();
-			//	遍历所有的HandlerMapping,
+			//	遍历所有的HandlerMapping
+            // 	RequestMappingHandlerMapping,BeanNameUrlHandlerMapping,SimpleUrlHandlerMapping,RouterFunctionMapping
             while(var2.hasNext()) {
                 
                 //	RequestMappingHandlerMapping 中的 mappingRegistry属性,
