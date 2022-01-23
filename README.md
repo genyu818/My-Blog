@@ -27,7 +27,7 @@
 
 ## JVM系列
 
-1.  [类加载子系统](Article\JVM\JVM01--类加载子系统.md) 
+1.  [类加载子系统](https://github.com/genyu818/My-Blog/blob/main/Article/JVM/JVM01--%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F.md) 
 2. JAVA运行时数据区
    1. [程序计数器和操作数栈.md](Article\JVM\JVM02--程序计数器和操作数栈.md) 
    2.  [堆](Article\JVM\JVM03--堆.md) 
