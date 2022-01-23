@@ -29,17 +29,17 @@
 
 1.  [类加载子系统](https://github.com/genyu818/My-Blog/blob/main/Article/JVM/JVM01--%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F.md) 
 2. JAVA运行时数据区
-   1. [程序计数器和操作数栈.md](Article\JVM\JVM02--程序计数器和操作数栈.md) 
-   2.  [堆](Article\JVM\JVM03--堆.md) 
-   3.  [方法区](Article\JVM\JVM04--方法区.md) 
-   4.  [执行引擎](Article\JVM\JVM05-执行引擎.md) 
-3.  垃圾回收
-   1.  [垃圾回收算法](Article\JVM\JVM06--垃圾回收算法.md) 
-   2.  [垃圾回收相关概念](Article\JVM\JVM07--垃圾回收相关概念.md) 
-   3.  [垃圾回收器](Article\JVM\JVM08--垃圾回收器.md) 
+   1. [程序计数器和操作数栈.md](https://github.com/genyu818/My-Blog/blob/main/Article/JVM/JVM02--%E7%A8%8B%E5%BA%8F%E8%AE%A1%E6%95%B0%E5%99%A8%E5%92%8C%E6%93%8D%E4%BD%9C%E6%95%B0%E6%A0%88.md) 
+   2.  [堆](https://github.com/genyu818/My-Blog/blob/main/Article/JVM/JVM03--%E5%A0%86.md) 
+   3.  [方法区](https://github.com/genyu818/My-Blog/blob/main/Article/JVM/JVM04--%E6%96%B9%E6%B3%95%E5%8C%BA.md) 
+   4.  [执行引擎](https://github.com/genyu818/My-Blog/blob/main/Article/JVM/JVM05-%E6%89%A7%E8%A1%8C%E5%BC%95%E6%93%8E.md) 
+3. 垃圾回收
+   1.  [垃圾回收算法](https://github.com/genyu818/My-Blog/blob/main/Article/JVM/JVM06--%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95.md) 
+   2.  [垃圾回收相关概念](https://github.com/genyu818/My-Blog/blob/main/Article/JVM/JVM07--%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5.md) 
+   3.  [垃圾回收器](https://github.com/genyu818/My-Blog/blob/main/Article/JVM/JVM08--%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8.md) 
 4. JVM监控及调优
-   1.  [JVM常用参数](Article\JVM\JVM09--JVM参数.md) 
-   2.  [JVM诊断及监控工具](Article\JVM\JVM10--诊断及监控工具.md) 
+   1.  [JVM常用参数](https://github.com/genyu818/My-Blog/blob/main/Article/JVM/JVM09--JVM%E5%8F%82%E6%95%B0.md) 
+   2.  [JVM诊断及监控工具](https://github.com/genyu818/My-Blog/blob/main/Article/JVM/JVM10--%E8%AF%8A%E6%96%AD%E5%8F%8A%E7%9B%91%E6%8E%A7%E5%B7%A5%E5%85%B7.md) 
 
 ## Spring Cloud
 
