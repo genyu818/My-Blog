@@ -33,7 +33,7 @@
    2.  [堆](https://github.com/genyu818/My-Blog/blob/main/Article/JVM/JVM03--%E5%A0%86.md) 
    3.  [方法区](https://github.com/genyu818/My-Blog/blob/main/Article/JVM/JVM04--%E6%96%B9%E6%B3%95%E5%8C%BA.md) 
    4.  [执行引擎](https://github.com/genyu818/My-Blog/blob/main/Article/JVM/JVM05-%E6%89%A7%E8%A1%8C%E5%BC%95%E6%93%8E.md) 
-3.  垃圾回收
+3. 垃圾回收
    1.  [垃圾回收算法](https://github.com/genyu818/My-Blog/blob/main/Article/JVM/JVM06--%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95.md) 
    2.  [垃圾回收相关概念](https://github.com/genyu818/My-Blog/blob/main/Article/JVM/JVM07--%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5.md) 
    3.  [垃圾回收器](https://github.com/genyu818/My-Blog/blob/main/Article/JVM/JVM08--%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8.md) 
