@@ -36,7 +36,7 @@ jstat（JVM Statistics Monitoring Tool）：用于监视虚拟机各种运行状
 
 其中vmid是进程id号，也就是jps之后看到的前面的号码，如下：
 
-![image-20220123190147569](D:\Blog\My-Blog\pic\image-20220123190147569.png)
+![image-20220123190147569](..\..\pic\image-20220123190147569.png)
 
 **option参数**
 
