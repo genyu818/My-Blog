@@ -1,6 +1,6 @@
 # 运行时数据区
 
-![image-20201024102633402](https://github.com/genyu818/My-Blog/blob/main/pic/jvm02_1.jpg)
+![image-20201024102633402](https://github.com/genyu818/My-Blog/blob/main/image/jvm02_1)
 
 
 
